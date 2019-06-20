@@ -1,0 +1,729 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Implementing Redux</title><style>
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	text-indent: -1.7em;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+	white-space: pre-line;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	opacity: 0.5;
+}
+
+.sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, KaiTi, STKaiTi, '华文楷体', KaiTi_GB2312, '楷体_GB2312', serif; }
+.mono { font-family: Nitti, 'Microsoft YaHei', '微软雅黑', monospace; }
+.pdf .sans { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .code { font-family: Source Code Pro, 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, KaiTi, STKaiTi, '华文楷体', KaiTi_GB2312, '楷体_GB2312', serif, 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .mono { font-family: PT Mono, Nitti, 'Microsoft YaHei', '微软雅黑', monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.highlight-default {
+}
+.highlight-gray {
+	color: rgb(155,154,151);
+}
+.highlight-brown {
+	color: rgb(100,71,58);
+}
+.highlight-orange {
+	color: rgb(217,115,13);
+}
+.highlight-yellow {
+	color: rgb(223,171,1);
+}
+.highlight-teal {
+	color: rgb(15,123,108);
+}
+.highlight-blue {
+	color: rgb(11,110,153);
+}
+.highlight-purple {
+	color: rgb(105,64,165);
+}
+.highlight-pink {
+	color: rgb(173,26,114);
+}
+.highlight-red {
+	color: rgb(224,62,62);
+}
+.highlight-gray_background {
+	background: rgb(235,236,237);
+}
+.highlight-brown_background {
+	background: rgb(233,229,227);
+}
+.highlight-orange_background {
+	background: rgb(250,235,221);
+}
+.highlight-yellow_background {
+	background: rgb(251,243,219);
+}
+.highlight-teal_background {
+	background: rgb(221,237,234);
+}
+.highlight-blue_background {
+	background: rgb(221,235,241);
+}
+.highlight-purple_background {
+	background: rgb(234,228,242);
+}
+.highlight-pink_background {
+	background: rgb(244,223,235);
+}
+.highlight-red_background {
+	background: rgb(251,228,228);
+}
+.block-color-default {
+}
+.block-color-gray {
+	color: rgba(55, 53, 47, 0.6);
+	fill: rgba(55, 53, 47, 0.6);
+}
+.block-color-brown {
+	color: rgb(100,71,58);
+	fill: rgb(100,71,58);
+}
+.block-color-orange {
+	color: rgb(217,115,13);
+	fill: rgb(217,115,13);
+}
+.block-color-yellow {
+	color: rgb(223,171,1);
+	fill: rgb(223,171,1);
+}
+.block-color-teal {
+	color: rgb(15,123,108);
+	fill: rgb(15,123,108);
+}
+.block-color-blue {
+	color: rgb(11,110,153);
+	fill: rgb(11,110,153);
+}
+.block-color-purple {
+	color: rgb(105,64,165);
+	fill: rgb(105,64,165);
+}
+.block-color-pink {
+	color: rgb(173,26,114);
+	fill: rgb(173,26,114);
+}
+.block-color-red {
+	color: rgb(224,62,62);
+	fill: rgb(224,62,62);
+}
+.block-color-gray_background {
+	background: rgb(235,236,237);
+}
+.block-color-brown_background {
+	background: rgb(233,229,227);
+}
+.block-color-orange_background {
+	background: rgb(250,235,221);
+}
+.block-color-yellow_background {
+	background: rgb(251,243,219);
+}
+.block-color-teal_background {
+	background: rgb(221,237,234);
+}
+.block-color-blue_background {
+	background: rgb(221,235,241);
+}
+.block-color-purple_background {
+	background: rgb(234,228,242);
+}
+.block-color-pink_background {
+	background: rgb(244,223,235);
+}
+.block-color-red_background {
+	background: rgb(251,228,228);
+}
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="14cf0cab-bac5-4e23-9913-e5dbb26c68e3" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">🔨</span></div><h1 class="page-title">Implementing Redux</h1></header><div class="page-body"><ul id="64f2299d-5194-4a59-a205-6659ab71fd92" class="toggle"><li><details open=""><summary>Think about the <strong>state</strong> of your application, what data do you want to have in your &#x27;store&#x27;? How do you want to split up the data of your app ? </summary><ul id="e76ef6ed-ab07-4b9b-bfb8-fed2a0c0a8be" class="bulleted-list"><li>You should have different reducer functions, each managing independent parts of the state. In the following code snippets, the data pertains to markets. </li></ul><p id="faaab775-0382-4585-9a7c-dbe03bcf634b" class=""><strong>./reducers/marketsReducer.js</strong></p><pre id="5bf7e112-f090-4edf-9193-df9f6a4f21a3" class="code"><code><strong>const initialState = {
+	totalMarkets: 0,
+	totalCards: 0,
+	marketList: [],
+	lastMarketId: 10000,
+	newLocation: &#x27;&#x27;
+};</strong></code></pre><ul id="510aefcb-9c84-4c92-a6f9-34e925270337" class="bulleted-list"><li>Everything in the initial state object of each reducer is an independent part of the state that is only modified by its corresponding reducer function.</li></ul></details></li></ul><ul id="88554aee-b66a-402c-b8d8-f2e528ead8d3" class="toggle"><li><details open=""><summary>Think about the type <strong>actions</strong> you want to take on your application&#x27;s state/store. </summary><p id="1694e006-5233-4ead-a72c-27eedc1580eb" class=""><strong>./constants/actionTypes.js</strong></p><pre id="b1778b0e-684b-4dcf-94af-641598c389c2" class="code"><code><strong>export const ADD_MARKET = &quot;ADD_MARKET&quot;;
+export const ADD_CARD = &quot;ADD_CARD&quot;;
+export const DELETE_CARD = &quot;DELETE_CARD&quot;;</strong></code></pre></details></li></ul><ul id="87a227d0-8dfb-4bd4-9c9d-939552fd1779" class="toggle"><li><details open=""><summary>Make <strong>action creator </strong>functions for your action types.</summary><p id="a6615490-c274-47f7-a0f8-cc80b16cee62" class=""><strong>./actions/actions.js</strong></p><pre id="2d286d3c-6407-4afe-b7d7-bc54f84fc4c5" class="code"><code><strong>import * as types from &#x27;../constants/actionTypes&#x27;;
+
+export const addCard = (marketIndex) =&gt; ({
+  //this type property dictates how we plan to update state
+  type: types.ADD_CARD,
+  //this payload property is what we update state with
+  payload: marketIndex,
+});
+
+// this is the action creator for when the button is clicked on web page to
+// add a market
+export const addMarket = (location) =&gt; ({
+  //this type property dictates how we plan to update state
+  type: types.ADD_MARKET,
+  //this payload property is what we update state with
+  payload: location
+});</strong></code></pre><p id="16a9f44c-1be6-495b-a7a9-3ed52206a1b6" class="">Action creator functions should return an object with 2 properties, typically:<div class="indented"><ol id="e9f651f8-a2a1-4d48-be4c-59f441aa65da" class="numbered-list" start="1"><li><strong>type:</strong> Imported from actionTypes.js and referenced by it&#x27;s variable to avoid any misspellings. It should also be the same name of the action creator function.</li></ol><ol id="3b2542ba-61dd-4235-a741-4554bc4a7a8a" class="numbered-list" start="2"><li><strong>payload: </strong>Data to be used in the corresponding reducer function to modify the data store.</li></ol></div></p></details></li></ul><ul id="342af8c0-e34b-40d8-a1f9-b0367d807b33" class="toggle"><li><details open=""><summary>Fill out the reducer methods for each action type. A switch statement is usually used within the reducer method to run corresponding functionality dependent on the action type.</summary><p id="404e26d0-5e6c-4d1e-8bd1-554e55330322" class=""><strong>./reducers/marketsReducer.js</strong></p><pre id="6a8ece43-715d-4dc0-88cf-2d4281dc0f7e" class="code"><code><strong>import * as types from &#x27;../constants/actionTypes&#x27;;
+
+const initialState = {
+	totalMarkets: 0,
+	totalCards: 0,
+	marketList: [],
+	lastMarketId: 10000,
+	newLocation: &#x27;&#x27;
+};
+
+const marketReducer = (state = initialState, action) =&gt; {
+	switch(action.type) {
+
+		case types.ADD_MARKET :
+			let {lastMarketId, totalMarkets, marketList} = state
+			marketList = marketList.slice();
+			totalMarkets += 1;
+			const newMarket = {
+				marketID: lastMarketId + 1,
+				location: action.payload,
+				cards: 0,
+				&#x27;% of total&#x27;: 0
+				};
+			marketList.push(newMarket);
+			return  {
+				...state,
+				marketList,
+				lastMarketId,
+				totalMarkets,
+				newLocation: action.payload
+			};
+
+		case types.ADD_CARD:
+      const updatedTotalCards = JSON.parse(JSON.stringify(state));
+      updatedTotalCards.totalCards++;
+      updatedTotalCards.marketList[action.payload].cards++;
+      console.log(updatedTotalCards, &#x27;fredo-town&#x27;);
+      
+      return updatedTotalCards;
+
+		default:
+			return state;
+	}
+};</strong></code></pre><ul id="c372394a-a1ca-4fb7-b933-f82ef1f10850" class="bulleted-list"><li>Reducer functions have 2 parameters: <ol id="61f8d5c0-d83a-4b85-841d-cee30feceaa5" class="numbered-list" start="1"><li><strong>State: </strong>Object of data to be merged into overarching Redux Store</li></ol><ol id="580d9058-fd4a-4ef0-b3dc-92cf7f847137" class="numbered-list" start="2"><li><strong>Action: </strong>Object created by an Action Creator function. It consists of 2 properties: type and payload. Action is a constant string that describes the action that will affect the state. The payload is additional data available to the reducer function while modifying the state.</li></ol></li></ul><ul id="1d61cf43-c83a-45fc-8f13-532160dcc463" class="bulleted-list"><li>The reducer function should have a default argument for the <code>store</code> parameter. This is what your data store will be initialized as. </li></ul><ul id="63c559a4-30f0-4a2e-b2a4-31540a51b271" class="bulleted-list"><li>The reducer function should clone the current state via the <code>state</code> parameter, modify the cloned state object, and return it. The returned object will be merged into the current state/store and the <strong>subscribed</strong> components will re render with their updated values.</li></ul></details></li></ul><ul id="49de9744-c606-4f19-babf-e31b7c2ffb82" class="toggle"><li><details open=""><summary>Combine your reducer functions using <code>combineReducers()</code>.</summary><ul id="181f8658-107d-4110-8d8f-14d70d59de9d" class="bulleted-list"><li>Import all your reduce functions from their files and add them as values to the object being passed in to <code>combineReducers()</code>. </li></ul><ul id="a3c36226-ba27-49de-9770-ed670f3fb462" class="bulleted-list"><li>This function combines all the reducing functions passed into it resulting in a single reducing function that can be passed to <code>createStore()</code>.</li></ul><ul id="fa061156-8406-418f-9051-d15556a93255" class="bulleted-list"><li>The resulting reducer calls every child reducer, and gathers their results into a single state object. The state produced by <code>combineReducers()</code> names the states of each reducer under their keys as passed to <code>combineReducers()</code>.<p id="55f14e3e-24df-411c-bf76-45878afa6141" class=""><strong>EXAMPLE:</strong></p><pre id="2c993729-a907-40e4-973b-204793cd913a" class="code"><code><strong>rootReducer = combineReducers({
+	potato: potatoReducer,
+	tomato: tomatoReducer
+});
+
+// This would produce the following state object
+{
+  potato: {
+    // ... potatoes, and other state managed by the potatoReducer ...
+  },
+  tomato: {
+    // ... tomatoes, and other state managed by the tomatoReducer ...
+  }
+}</strong></code></pre><p id="8a4031aa-3b8b-437a-8d6c-0fe70811358f" class=""><strong>./reducers/index.js</strong></p><pre id="675ad3e2-b772-45ce-8dde-3cdd6e339939" class="code"><code><strong>import { combineReducers } from &#x27;redux&#x27;;
+// import all reducers here
+import marketsReducer from &#x27;./marketsReducer&#x27;;
+
+// combine reducers
+const reducers = combineReducers({
+  // if we had other reducers, they would go here
+  markets: marketsReducer,
+});
+
+// make the combined reducers available for import
+export default reducers;</strong></code></pre><ul id="4b5c4d0a-ce5b-4af3-acfc-43d0d3bf776c" class="bulleted-list"><li>Reducer is exported to be imported into file where it is used to create the store.</li></ul></li></ul></details></li></ul><ul id="2b120b06-e7e4-4b00-a504-d1695671097a" class="toggle"><li><details open=""><summary>Create a redux store that holds the complete state &#x27;tree&#x27; of your app using <code>createStore()</code>.</summary><ul id="8753765b-ab46-496a-993e-ae2f5a013c42" class="bulleted-list"><li><code>createStore()</code> takes a reducer function as an argument and returns the <code>store</code> object. This object holds the complete state of your app. It initializes to different key value pairs, each of them being the initial state of each reducer.</li></ul><p id="28869cc5-ca36-4a80-b2f9-4821ba17c12d" class=""><strong>./store.js</strong></p><pre id="8c32ecd8-3e6a-4e93-8dbc-2bf88ed488fc" class="code"><code><strong>import { createStore } from &#x27;redux&#x27;;
+import { composeWithDevTools } from &#x27;redux-devtools-extension&#x27;;
+import reducers from &#x27;./reducers/index&#x27;;
+
+// we are adding composeWithDevTools here to get easy access to the Redux dev
+// tools
+const store = createStore(
+  reducers,
+  composeWithDevTools()
+);
+
+export default store;</strong></code></pre><ul id="a9e4f54b-d26e-453c-a6aa-824f50f55fd0" class="bulleted-list"><li>The store is exported to be imported into the file where the parent App component is appended to the DOM.</li></ul></details></li></ul><ul id="3f7c7e8e-42fb-451e-9cb3-f5d37129a8e9" class="toggle"><li><details open=""><summary>Import <code>Provider</code> from <code>react-redux</code> and wrap it around your parent React component.</summary><p id="9df25bf9-a9b8-4a97-8859-a62a1ea11584" class=""><strong>./index.js</strong></p><pre id="63e70859-77ca-42bc-ace3-61ca916b9dd3" class="code"><code><strong>import React from &#x27;react&#x27;;
+import { render } from &#x27;react-dom&#x27;;
+import { Provider } from &#x27;react-redux&#x27;;
+import App from &#x27;./App.jsx&#x27;;
+import store from &#x27;./store&#x27;;
+
+render (
+  // wrap the App in the Provider and pass in the store
+  //This gives all components access to the REDUX store
+  &lt;Provider store = {store}&gt;
+    &lt;App /&gt;
+  &lt;/Provider&gt;,
+  document.getElementById(&#x27;contents&#x27;)
+);</strong></code></pre><p id="b3dd9409-bbcb-48e9-9a99-3941f1b75f1c" class=""><code>&lt;Provider /&gt;</code> makes the Redux <code>store</code> passed via a JSX attribute available to any nested components inside of it. In the snippet above, the <code>&lt;App /&gt;</code> component is our root-level component. This means every other component in our app is a child of App. They all have access to the Redux <code>store</code> thanks to the <code>&lt;Provider /&gt;</code> component.</p></details></li></ul><ul id="5f00c9d7-1bad-4287-90c5-5bcc9595e7d4" class="toggle"><li><details open=""><summary>Connect your stateful components to the Redux <code>store</code> by importing and running <code>connect()</code> from <code>react-redux</code>.</summary><ul id="d11e5b97-9843-48a5-8930-d55d8ff0b78f" class="bulleted-list"><li>The <code>connect()</code> function provides the connected component with the data it needs from the store, and the functions it can use to dispatch actions to the store.</li></ul><ul id="b87d576e-b9ea-47e8-9c04-2bc5bd3db5d7" class="bulleted-list"><li>The connect function should be called right before exporting your React Component. The return value of connect will be the same component with the data you wanted to extract from state mapped into the component&#x27;s <code>props</code>.</li></ul><p id="8c75364b-3c31-4f79-8671-d2266578e2ad" class=""><strong>./containers/MarketsContainer.jsx</strong></p><pre id="c037a0dc-0ec2-4234-a8df-16c046071562" class="code"><code><strong>import React, { Component } from &#x27;react&#x27;;
+import { connect } from &#x27;react-redux&#x27;;
+
+// import actions from action creators file
+import * as actions from &#x27;../actions/actions&#x27;;
+
+// import child components...
+import MarketsDisplay from &#x27;../components/MarketsDisplay.jsx&#x27;
+
+
+/* any component referencing the object outputted is a &#x27;subscriber&#x27; to
+ * the &#x27;store&#x27;.
+ * These key:value pairs will now be available under the components `prop
+ * object.
+ */
+const mapStateToProps = store =&gt; ({
+  marketList : store.markets.marketList,
+  totalCards : store.markets.totalCards
+});
+
+
+const mapDispatchToProps = dispatch =&gt; ({
+  // create functions that will dispatch action creators
+  addMarket: (event) =&gt; {
+    let location = event.target.previousSibling.value;
+    return dispatch(actions.addMarket(location))
+  },
+  addCard: event =&gt; {
+    console.log(event.target.id, &#x27;*****&#x27;);
+    const index = event.target.id;
+    return dispatch(actions.addCard(index));
+  }
+});
+
+
+class MarketsContainer extends Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    return(
+      &lt;div className=&quot;innerbox&quot;&gt;
+        &lt;MarketCreator addMarket = {this.props.addMarket}/&gt;
+        &lt;MarketsDisplay marketList = {this.props.marketList} 
+        totalCards = {this.props.totalCards} addCard = {this.props.addCard}/&gt;
+      &lt;/div&gt;
+    );
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(MarketsContainer);</strong></code></pre><ul id="1596c238-a3eb-4819-8b83-48cc45565971" class="bulleted-list"><li><code>connect()</code> accepts 4 optional parameters, but we will only talk about 2 important ones:<ol id="f3938ca0-cc49-40cc-9eec-6dfa62844482" class="numbered-list" start="1"><li><code>mapStateToProps()</code>:  a callback Function that deals with your Redux store&#x27;s <code>state</code>. If it is passed to connect as an argument then the component will be <strong>subscribed </strong>to the Redux store.<strong> </strong>This means that any time the store is updated, <code>mapStateToProps</code> will be called<strong>. </strong><ul id="ba024820-0429-4847-acde-79ac7d4bb140" class="bulleted-list"><li>Pass <code>connect()</code> null as the first argument instead of mapStateToProps if you do not wish to subscribe to Redux store updates.</li></ul><ul id="66d1d268-de34-4844-b899-c4f04de85749" class="bulleted-list"><li>When it is invoked by Redux, it is given <code>state</code> as the first argument. </li></ul><ul id="e2724c7a-fb95-4ead-9655-101bf277a8e3" class="bulleted-list"><li>The return value should be an object with the key:value pairs you would like to merge into your components <code>prop</code> object. Since this function has access to the Redux store, you should pull out any data you need for your components and put it in the returned object. You can then access the same key:value pairs from the components <code>prop</code> object under the same key names.</li></ul></li></ol><ol id="fe4d16bd-9663-4a63-8862-c32bbadc4b89" class="numbered-list" start="2"><li><code>mapDispatchToProps()</code>: a callback Function that <ul id="c965689b-782f-470a-8c9a-98969f0ace70" class="bulleted-list"><li></li></ul></li></ol></li></ul></details></li></ul><p id="760cded0-5583-445a-a32c-ec512f4878e9" class="">
+</p><p id="37a965c0-83db-46ad-95ca-ca2c237efb94" class="">
+</p></div></article></body></html>
