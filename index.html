@@ -618,9 +618,7 @@ const marketReducer = (state = initialState, action) =&gt; {
 		case types.ADD_CARD:
       const updatedTotalCards = JSON.parse(JSON.stringify(state));
       updatedTotalCards.totalCards++;
-      updatedTotalCards.marketList[action.payload].cards++;
-      console.log(updatedTotalCards, &#x27;fredo-town&#x27;);
-      
+      updatedTotalCards.marketList[action.payload].cards++;      
       return updatedTotalCards;
 
 		default:
@@ -699,12 +697,11 @@ const mapDispatchToProps = dispatch =&gt; ({
   // create functions that will dispatch action creators
   addMarket: (event) =&gt; {
     let location = event.target.previousSibling.value;
-    return dispatch(actions.addMarket(location))
+    dispatch(actions.addMarket(location))
   },
   addCard: event =&gt; {
-    console.log(event.target.id, &#x27;*****&#x27;);
     const index = event.target.id;
-    return dispatch(actions.addCard(index));
+    dispatch(actions.addCard(index));
   }
 });
 
@@ -724,6 +721,6 @@ class MarketsContainer extends Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(MarketsContainer);</strong></code></pre><ul id="1596c238-a3eb-4819-8b83-48cc45565971" class="bulleted-list"><li><code>connect()</code> accepts 4 optional parameters, but we will only talk about 2 important ones:<ol id="f3938ca0-cc49-40cc-9eec-6dfa62844482" class="numbered-list" start="1"><li><code>mapStateToProps()</code>:  a callback Function that deals with your Redux store&#x27;s <code>state</code>. If it is passed to connect as an argument then the component will be <strong>subscribed </strong>to the Redux store.<strong> </strong>This means that any time the store is updated, <code>mapStateToProps</code> will be called<strong>. </strong><ul id="ba024820-0429-4847-acde-79ac7d4bb140" class="bulleted-list"><li>Pass <code>connect()</code> null as the first argument instead of mapStateToProps if you do not wish to subscribe to Redux store updates.</li></ul><ul id="66d1d268-de34-4844-b899-c4f04de85749" class="bulleted-list"><li>When it is invoked by Redux, it is given <code>state</code> as the first argument. </li></ul><ul id="e2724c7a-fb95-4ead-9655-101bf277a8e3" class="bulleted-list"><li>The return value should be an object with the key:value pairs you would like to merge into your components <code>prop</code> object. Since this function has access to the Redux store, you should pull out any data you need for your components and put it in the returned object. You can then access the same key:value pairs from the components <code>prop</code> object under the same key names.</li></ul></li></ol><ol id="fe4d16bd-9663-4a63-8862-c32bbadc4b89" class="numbered-list" start="2"><li><code>mapDispatchToProps()</code>: a callback Function that <ul id="c965689b-782f-470a-8c9a-98969f0ace70" class="bulleted-list"><li></li></ul></li></ol></li></ul></details></li></ul><p id="760cded0-5583-445a-a32c-ec512f4878e9" class="">
+export default connect(mapStateToProps, mapDispatchToProps)(MarketsContainer);</strong></code></pre><ul id="1596c238-a3eb-4819-8b83-48cc45565971" class="bulleted-list"><li><code>connect()</code> accepts 4 optional parameters, but we will only talk about 2 important ones:<ol id="f3938ca0-cc49-40cc-9eec-6dfa62844482" class="numbered-list" start="1"><li><code>mapStateToProps()</code>:  a callback Function that deals with your Redux store&#x27;s <code>state</code>. If it is passed to connect as an argument then the component will be <strong>subscribed </strong>to the Redux store.<strong> </strong>This means that any time the store is updated, <code>mapStateToProps</code> will be called<strong>. </strong><ul id="ba024820-0429-4847-acde-79ac7d4bb140" class="bulleted-list"><li>Pass <code>connect()</code> null as the first argument instead of mapStateToProps if you do not wish to subscribe to Redux store updates.</li></ul><ul id="66d1d268-de34-4844-b899-c4f04de85749" class="bulleted-list"><li>When it is invoked by Redux, it is given <code>state</code> as the first argument. </li></ul><ul id="e2724c7a-fb95-4ead-9655-101bf277a8e3" class="bulleted-list"><li>The return value should be an object with the key:value pairs you would like to merge into your components <code>prop</code> object. Since this function has access to the Redux store, you should pull out any data you need for your components and put it in the returned object. You can then access the same key:value pairs from the components <code>prop</code> object under the same key names.<figure id="248b2446-5026-4da9-bbbf-93ce9f7017bf"><div class="block-color-purple_background bookmark source"><a href="https://react-redux.js.org/using-react-redux/connect-mapstate">Connect: Extracting Data with mapStateToProps · React Redux</a><br/><a class="bookmark-href" href="https://react-redux.js.org/using-react-redux/connect-mapstate">https://react-redux.js.org/using-react-redux/connect-mapstate</a></div></figure></li></ul></li></ol><ol id="fe4d16bd-9663-4a63-8862-c32bbadc4b89" class="numbered-list" start="2"><li><code>mapDispatchToProps()</code>: a callback function that merges methods onto your components <code>props</code> object. These methods are known as <strong>dispatchers </strong>because they dispatch your predefined actions (from actionTypes.js) to the store. <code>dispatch</code> is a method on the Redux <code>store</code> object. Calling <code>store.dispatch()</code> with an action (often created with an <strong>action creator</strong> function) is the only way to modify the application&#x27;s state.<ul id="c965689b-782f-470a-8c9a-98969f0ace70" class="bulleted-list"><li>Should return an object with methods that dispatch action objects.</li></ul><ul id="daa3eb00-1b05-42ad-8d7b-32d9c3dce679" class="bulleted-list"><li><code>mapDispatchToProps</code> is always given the Redux store&#x27;s <code>dispatch</code> method as an argument. The methods in the returned object should use this dispatch argument to modify the state with an action object.<figure id="682856cb-097f-4bc1-8a44-afb7937aef92"><div class="block-color-purple_background bookmark source"><a href="https://react-redux.js.org/using-react-redux/connect-mapdispatch">Connect: Dispatching Actions with mapDispatchToProps · React Redux</a><br/><a class="bookmark-href" href="https://react-redux.js.org/using-react-redux/connect-mapdispatch">https://react-redux.js.org/using-react-redux/connect-mapdispatch</a></div></figure></li></ul></li></ol></li></ul></details></li></ul><p id="760cded0-5583-445a-a32c-ec512f4878e9" class="">
 </p><p id="37a965c0-83db-46ad-95ca-ca2c237efb94" class="">
 </p></div></article></body></html>
